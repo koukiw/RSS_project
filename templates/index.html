@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+    <title>{{ title }}</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+ 
+<body>
+    <script>
+        document.write("以下に入力したRSSのtitle部分を表示します。");
+        //document.write("最終更新:" + document.lastModified)
+        $(document).ready(function () {
+            //#submitは#{id}の形で書く
+            $('#submit').on("click", function () {
+                $.ajax({
+                    url: "/rss",
+                    type: 'POST',
+                    dataType: 'json',
+                    //送信するデータパラメーターdata:{キー名:値}
+                    data: { "rss_url": $("#rss_url").val() },
+                    timeout: 10000,
+               }).done(function (data) {
+                    let published_data_list = []
+                    data_json = JSON.stringify(data)
+                    console.log("データジェイソン")
+                    console.log(data_json)
+                    //console.log(type(data))
+                    $("ul").empty();
+ 
+ 
+                    data.forEach(function (element, index, array) {
+                        //target="_blank"でリンククリック時に別タブでリンク先をひらく
+                        HiperText = element.title
+                        //日時の年月日のみ受け取る
+                        date_str = element.published
+                        //console.log(published_data)
+                        //console.log("$.type : " + $.type(element.published))
+                        //var data = new Date();
+                        //比較用にとりあえず作っておく仮の前の更新日時を設定 2022/5/17 12:30:45
+                        var update_date = new Date(2022, 5, 17, 12, 30, 4);
+                        var date = new Date(date_str)
+                        //console.log("RSSの日時（文字列)のまま表示")
+                        //console.log(date_str)
+                        console.log("RSSの日時（文字列）をData型に変換")
+                        console.log(date)
+                        console.log("最終更新日時")
+                        console.log(update_date)
+                        //console.log("$.type : " + $.type(data))
+                        console.log(date > update_date)
+                        $("#all_info").append('<li><a href="' + element.link + '"  target="_blank">' + HiperText + '</a></li>');
+ 
+                        if (date > update_date) {
+                            $("#new_info").append('<li><a href="' + element.link + '"  target="_blank">' + HiperText + '</a></li>');
+                        } else {
+                            $("#past_info").append('<li><a href="' + element.link + '"  target="_blank">' + HiperText + '</a></li>');
+                        }
+                        $()
+                    })
+                    $('#submit').prop("disabled", false);
+                    //console.log("日時のみ取得")
+                    //console.log(published_data_list)
+                }).fail(function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("error");
+                    $('#submit').prop("disabled", false);
+                })
+            });
+        });
+    </script>
+    <table border="0">
+        <tr>
+            <td align="right"><b> RSS URL:</b></td>
+            <td><input type="text" name="rss_url" id="rss_url"></td>
+        </tr>
+ 
+    </table>
+    <input type="button" value="Submit" id="submit" />
+    <!--取得したRSS情報をulタグのリストに追加していく-->
+    <div id="list">
+        <h1>前回の更新時にはなかった新着情報</h1>
+        <ul id="new_info"></ul>
+    </div>
+    <div id="list">
+        <h1>前回の更新時にはなかった新着情報</h1>
+        <ul id="past_info"></ul>
+    </div>
+    <div id="list">
+        <h1>RSSの取得情報一覧</h1>
+        <ul id="all_info"></ul>
+    </div>
+ 
+ 
+ 
+</body>
+
+</html>
